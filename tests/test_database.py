@@ -2,7 +2,7 @@
 
 import os
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from src.database import PriceDatabase
 
@@ -67,7 +67,7 @@ class TestPriceDatabase:
 
     def test_price_history(self):
         """Should return history within the specified day range."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         for i in range(10):
             ts = (now - timedelta(days=i)).isoformat()
             self.db.save_price("Widget X", "https://example.com/x",
@@ -91,7 +91,7 @@ class TestPriceDatabase:
 
     def test_cleanup_old_records(self):
         """Should delete records older than the specified number of days."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         # Insert an old record (100 days ago)
         old_ts = (now - timedelta(days=100)).isoformat()

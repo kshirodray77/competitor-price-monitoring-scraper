@@ -2,7 +2,7 @@
 
 import sqlite3
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -66,7 +66,7 @@ class PriceDatabase:
             The row ID of the inserted record.
         """
         if scraped_at is None:
-            scraped_at = datetime.utcnow().isoformat()
+            scraped_at = datetime.now(timezone.utc).isoformat()
 
         with self._get_conn() as conn:
             cursor = conn.execute(
@@ -130,7 +130,7 @@ class PriceDatabase:
         Returns:
             A list of dicts ordered oldest → newest.
         """
-        cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
         with self._get_conn() as conn:
             rows = conn.execute(
                 """
@@ -158,7 +158,7 @@ class PriceDatabase:
         Returns:
             Number of deleted rows.
         """
-        cutoff = (datetime.utcnow() - timedelta(days=keep_days)).isoformat()
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=keep_days)).isoformat()
         with self._get_conn() as conn:
             cursor = conn.execute(
                 "DELETE FROM prices WHERE scraped_at < ?", (cutoff,)
